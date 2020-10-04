@@ -37,6 +37,7 @@ executables:
     - cribbage
     - pretty-simple
     - random
+    - transformers
 
 tests:
   cribbage-test:

@@ -6,31 +6,75 @@ import System.Random
 import Data.List
 -- import Data.Array.IO
 import Control.Monad
+import Control.Monad.Trans.Maybe
+import Control.Monad.Trans.Class
 
-data Suit = Club | Diamond | Heart | Spade   deriving (Show, Enum)
+import Control.Applicative
+-- import Control.Monad.State
 
-data Value = Two | Three | Four | Five | Six | Seven
-          | Eight | Nine | Ten | Jack | Queen
-          | King | Ace  deriving (Show, Enum)
+-- data Suit = Club | Diamond | Heart | Spade   deriving (Show, Enum)
 
-type Card = (Suit, Value)
+data Suit = Clubs | Diamonds | Hearts | Spades
+  deriving (Eq, Ord, Enum, Show, Read)
+
+data Rank = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King | Ace
+  deriving (Eq, Ord, Enum, Show, Read)
+
+-- data Value = Two | Three | Four | Five | Six | Seven
+--           | Eight | Nine | Ten | Jack | Queen
+--           | King | Ace  deriving (Show, Enum)
+
+data Card = Card Rank Suit
+  deriving (Eq, Show, Read)
+
+-- type Card = (Suit, Rank)
 type Deck = [Card]
 
-makeDeck :: Deck
--- makeDeck = liftM2 (,) [Club ..] [Two ..]
-makeDeck = concatMap (\suit -> map (suit,) [Two ..]) [Club ..]
+type Hand = [Card]
 
-randomList :: Int -> IO[Int]
-randomList 0 = return []
-randomList n = do
-  r  <- randomRIO (1,51)
-  rs <- randomList (n-1)
-  return (r:rs)
+oneCard :: IO ()
+oneCard = randomRank >>= \rank -> randomSuit >>= \suit -> print (getCard rank suit)
+
+randomCard :: IO ()
+randomCard = randomRank >>= \rank -> randomSuit >>= \suit -> print (getCard rank suit)
+
+randomRank :: IO Int
+randomRank = randomRIO (0,12)
+
+randomSuit :: IO Int
+randomSuit = randomRIO (0,3)
+
+getCard :: Int -> Int -> Card
+getCard r s = Card ([Two .. Ace] !! r) ([Clubs .. Spades] !! s)
 
 
-countTransactionsList:: [Int] -> Int
-countTransactionsList = foldr (\ x -> (+) 1) 0
+fullDeck :: Hand
+fullDeck = [ Card j i | i <- [Clubs .. Spades], j <- [Two .. Ace] ]
 
+deleteFromDeck :: Card -> Hand -> Hand
+-- deleteFromDeck c h = filter (\e -> e == c ) h
+-- deleteFromDeck c h = filter (== c) h
+deleteFromDeck c = filter (== c)
+
+addCard :: Card -> [Card] -> [Card]
+addCard x xs = x:xs
+
+-- makeDeck :: Deck
+-- -- makeDeck = liftM2 (,) [Club ..] [Two ..]
+-- makeDeck = concatMap (\suit -> map (suit,) [Two ..]) [Clubs ..]
+
+-- randomList :: Int -> [Int]
+-- randomList 0 = return []
+-- randomList n = do
+--   r  <- lift $ randomRIO (1,51)
+--   rs <- lift $ randomList (n-1)
+--   return (r:rs)
+
+
+-- countTransactionsList:: [Int] -> Int
+-- countTransactionsList = foldr (\ x -> (+) 1) 0
+
+-- x = mapM_ putStrLn
 
 randomCards :: Int -> IO[Int]
 randomCards 0 = return []
@@ -74,7 +118,17 @@ randomCards n = do
 main :: IO ()
 main = do
   putStrLn "--- separated ---"
-  print makeDeck
+  -- print makeDeck
+  mapM_ print ["1","2","3","4"]
+  print fullDeck
+  randomCard
+  -- print =<< randomList
+  -- liftM $ print randomList
+  -- mapM print randomList
+  -- print (liftM (!! 1) randomList)
+  -- mapM print randomList
+  -- putStrLn $ show randomList
+  -- mapM_ putStrLn randomList
   -- print randomList
 
 
