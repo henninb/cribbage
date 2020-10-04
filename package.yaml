@@ -35,6 +35,8 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - cribbage
+    - pretty-simple
+    - random
 
 tests:
   cribbage-test:
@@ -46,4 +48,3 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - cribbage
-    - pretty-simple

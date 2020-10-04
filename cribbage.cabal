@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cda1be661b31138f8d58f40a206e68de42de2cbf23b812a846d969f57e83fc51
+-- hash: e6503377a14e9090d121f5add68e3d3a9c0e0ab1d69568521e49753755784484
 
 name:           cribbage
 version:        0.1.0.0
@@ -46,6 +46,8 @@ executable cribbage-exe
   build-depends:
       base >=4.7 && <5
     , cribbage
+    , pretty-simple
+    , random
   default-language: Haskell2010
 
 test-suite cribbage-test
@@ -59,5 +61,4 @@ test-suite cribbage-test
   build-depends:
       base >=4.7 && <5
     , cribbage
-    , pretty-simple
   default-language: Haskell2010
