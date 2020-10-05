@@ -23,20 +23,20 @@ data Rank = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack 
 pick :: [a] -> IO a
 pick xs = fmap (xs !!) $ randomRIO (0, length xs - 1)
 
-mkRands = mapM (randomRIO . (,) 0) . enumFromTo 1 . pred
+-- mkRands = mapM (randomRIO . (,) 0) . enumFromTo 1 . pred
 
-replaceAt :: Int -> a -> [a] -> [a]
-replaceAt i c l =
-  let (a, b) = splitAt i l
-  in a ++ c : drop 1 b
+-- replaceAt :: Int -> a -> [a] -> [a]
+-- replaceAt i c l =
+--   let (a, b) = splitAt i l
+--   in a ++ c : drop 1 b
 
-swapElems :: (Int, Int) -> [a] -> [a]
-swapElems (i, j) xs
-  | i == j = xs
-  | otherwise = replaceAt j (xs !! i) $ replaceAt i (xs !! j) xs
+-- swapElems :: (Int, Int) -> [a] -> [a]
+-- swapElems (i, j) xs
+--   | i == j = xs
+--   | otherwise = replaceAt j (xs !! i) $ replaceAt i (xs !! j) xs
 
-shuffle :: [a] -> IO [a]
-shuffle xs = liftM (foldr swapElems xs . zip [1 ..]) (mkRands (length xs))
+-- shuffle :: [a] -> IO [a]
+-- shuffle xs = liftM (foldr swapElems xs . zip [1 ..]) (mkRands (length xs))
 -- data Value = Two | Three | Four | Five | Six | Seven
 --           | Eight | Nine | Ten | Jack | Queen
 --           | King | Ace  deriving (Show, Enum)
@@ -48,6 +48,21 @@ shuffle xs = liftM (foldr swapElems xs . zip [1 ..]) (mkRands (length xs))
 --   let (firstHalf, (item:secondHalf)) = splitAt i items
 --   (:) item <$> shuffle (firstHalf ++ secondHalf)
 
+newDeck :: Deck
+newDeck = [Card x y|  y <- [Clubs .. Spades], x <- [Two .. Ace]]
+
+
+shuffle :: Deck -> IO Deck
+shuffle deck = do
+    if length deck /= 0
+        then do
+            let deckLen = (length deck) - 1
+            n <- randomRIO(0, deckLen) :: IO Int
+            let randomCard = deck !! (fromIntegral n)
+            tailShuffle <- shuffle (delete randomCard deck)
+            return ([randomCard] ++ tailShuffle)
+        else return deck
+
 data Card = Card Rank Suit
   deriving (Eq, Show, Read)
 
@@ -55,6 +70,11 @@ data Card = Card Rank Suit
 type Deck = [Card]
 
 type Hand = [Card]
+
+
+-- function to show card
+showCard :: Card -> String
+showCard (Card n s) = show n ++ " -- " ++ show s
 
 oneCard :: IO ()
 oneCard = randomRank >>= \rank -> randomSuit >>= \suit -> print (getCard rank suit)
@@ -80,6 +100,12 @@ deleteFromDeck c = filter (== c)
 
 addCard :: Card -> [Card] -> [Card]
 addCard x xs = x:xs
+
+dealCards :: Monad m => m Deck -> m Deck
+dealCards d =
+    do
+    deck <- d
+    return ([deck !! n | n <- [0,2 ..51]])
 
 -- makeDeck :: Deck
 -- -- makeDeck = liftM2 (,) [Club ..] [Two ..]
@@ -145,6 +171,9 @@ main = do
   print fullDeck
   putStrLn "--- separated ---"
   randomCard
+  putStrLn "--- separated ---"
+  -- x < shuffle newDeck
+  game <- dealCards (shuffle newDeck)
   putStrLn "--- separated ---"
   -- shuffle fullDeck
   -- print =<< randomList
