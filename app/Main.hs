@@ -61,8 +61,8 @@ type Hand = [Card]
 showCard :: Card -> String
 showCard (Card n s) = show n ++ " -- " ++ show s
 
-oneCard :: IO ()
-oneCard = randomRank >>= \rank -> randomSuit >>= \suit -> print (getCard rank suit)
+--oneCard :: IO ()
+--oneCard = randomRank >>= \rank -> randomSuit >>= \suit -> print (getCard rank suit)
 
 randomCard :: IO ()
 randomCard = randomRank >>= \rank -> randomSuit >>= \suit -> print (getCard rank suit)
