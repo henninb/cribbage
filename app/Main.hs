@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 module Main where
 
-import Lib
+-- import Lib
 import System.Random
 import Data.List
 -- import Data.Array.IO
@@ -20,9 +20,33 @@ data Suit = Clubs | Diamonds | Hearts | Spades
 data Rank = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King | Ace
   deriving (Eq, Ord, Enum, Show, Read)
 
+pick :: [a] -> IO a
+pick xs = fmap (xs !!) $ randomRIO (0, length xs - 1)
+
+mkRands = mapM (randomRIO . (,) 0) . enumFromTo 1 . pred
+
+replaceAt :: Int -> a -> [a] -> [a]
+replaceAt i c l =
+  let (a, b) = splitAt i l
+  in a ++ c : drop 1 b
+
+swapElems :: (Int, Int) -> [a] -> [a]
+swapElems (i, j) xs
+  | i == j = xs
+  | otherwise = replaceAt j (xs !! i) $ replaceAt i (xs !! j) xs
+
+shuffle :: [a] -> IO [a]
+shuffle xs = liftM (foldr swapElems xs . zip [1 ..]) (mkRands (length xs))
 -- data Value = Two | Three | Four | Five | Six | Seven
 --           | Eight | Nine | Ten | Jack | Queen
 --           | King | Ace  deriving (Show, Enum)
+--
+-- shuffle :: [a] -> IO [a]
+-- shuffle [] = return []
+-- shuffle items = do
+--   i <- randomTo $ (length items) - 1
+--   let (firstHalf, (item:secondHalf)) = splitAt i items
+--   (:) item <$> shuffle (firstHalf ++ secondHalf)
 
 data Card = Card Rank Suit
   deriving (Eq, Show, Read)
@@ -52,8 +76,6 @@ fullDeck :: Hand
 fullDeck = [ Card j i | i <- [Clubs .. Spades], j <- [Two .. Ace] ]
 
 deleteFromDeck :: Card -> Hand -> Hand
--- deleteFromDeck c h = filter (\e -> e == c ) h
--- deleteFromDeck c h = filter (== c) h
 deleteFromDeck c = filter (== c)
 
 addCard :: Card -> [Card] -> [Card]
@@ -119,9 +141,12 @@ main :: IO ()
 main = do
   putStrLn "--- separated ---"
   -- print makeDeck
-  mapM_ print ["1","2","3","4"]
+  -- mapM_ print ["1","2","3","4"]
   print fullDeck
+  putStrLn "--- separated ---"
   randomCard
+  putStrLn "--- separated ---"
+  -- shuffle fullDeck
   -- print =<< randomList
   -- liftM $ print randomList
   -- mapM print randomList
