@@ -13,6 +13,14 @@ data Suit = Clubs | Diamonds | Hearts | Spades
 data Rank = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King | Ace
   deriving (Eq, Ord, Enum, Show, Read)
 
+data Card = Card Rank Suit
+  deriving (Eq, Show, Read)
+
+--type Card = (Suit, Rank)
+type Deck = [Card]
+type Hand = [Card]
+type CutCard = [Card]
+
 pickRandomCard :: [a] -> IO a
 -- pickRandomCard xs = fmap (xs !!) $ randomRIO (0, length xs - 1)
 pickRandomCard xs = (xs !!) <$> randomRIO (0, length xs - 1)
@@ -47,13 +55,6 @@ shuffle deck =
             return (randomCard : tailShuffle)
         else return deck
 
-data Card = Card Rank Suit
-  deriving (Eq, Show, Read)
-
---type Card = (Suit, Rank)
-type Deck = [Card]
-type Hand = [Card]
-type CutCard = [Card]
 
 --makeDeck :: [Deck]
 --makeDeck = liftM2 Card(,) [Clubs ..] [Two ..]
@@ -61,9 +62,6 @@ type CutCard = [Card]
 
 showCard :: Card -> String
 showCard (Card n s) = show n ++ " -- " ++ show s
-
---oneCard :: IO ()
---oneCard = randomRank >>= \rank -> randomSuit >>= \suit -> print (getCard rank suit)
 
 randomCard :: IO ()
 randomCard = randomRank >>= \rank -> randomSuit >>= \suit -> print (getCard rank suit)
@@ -80,13 +78,11 @@ getCard r s = Card ([Two .. Ace] !! r) ([Clubs .. Spades] !! s)
 createCard :: Rank ->  Suit -> Card
 createCard = Card
 
--- isSpade :: Card -> Bool
--- isSpade card = Spades == snd card
+isSpade :: Card -> Bool
+isSpade card = Spades == extractSuit card
 
--- isSuit :: Card -> Suit -> Bool
--- isSuit card suit = suit == snd card
-
-nOfNeg l = length(filter (<0) l)
+isSuit :: Card -> Suit -> Bool
+isSuit card suit = suit == extractSuit card
 
 fullDeck :: Deck
 fullDeck = [ Card j i | i <- [Clubs .. Spades], j <- [Two .. Ace] ]
@@ -109,14 +105,11 @@ dealFourCards deck = [deck !! n | n <- [0..3]]
 flipCutCard :: Deck -> CutCard
 flipCutCard deck = [deck !! n | n <- [51]]
 
+cutCard deck = head . deck 51
+
 -- merge :: [a] -> [a] -> [a]
 -- merge [] ys = ys
 -- merge (x:xs) ys = x:merge ys xs
-
--- countFlush :: Hand -> CutCard -> Bool
--- countFlush hand cutCard = length hand
--- countFlush [] cutCard = False
--- countFlush x:xs cutCard = isSpade x and countFlush xs cutCard
 
 extractSuit :: Card -> Suit
 extractSuit (Card a b) = b
@@ -124,17 +117,9 @@ extractSuit (Card a b) = b
 extractRank :: Card -> Rank
 extractRank (Card a b) = a
 
-countFlush :: Hand -> CutCard -> Bool
-countFlush [] a = True
-countFlush (x:xs) a = (Spades == extractSuit x) && countFlush a xs
--- isElement1 (x:xs) a = Spades == (second x) && isElement1 a xs
-
--- isElement a [] = False
--- isElement a (x:xs) = if Spades == snd x then True
---                      else isElement a xs
-
--- foo p = foldl' (\n x -> if p x then n+1 else n) 0
-
+isFlush :: Hand -> CutCard -> Bool
+isFlush [] a = True
+isFlush (x:xs) a = (Spades == extractSuit x) && isFlush a xs
 
 main :: IO ()
 main = do
@@ -158,7 +143,7 @@ main = do
   print myCutCard
   putStrLn "--- separated ---"
   -- let x = merge myHand myCutCard
-  let x = isElement1 myHand myCutCard
+  let x = isFlush myHand myCutCard
   let y = createCard King Clubs
   print x
   print y
