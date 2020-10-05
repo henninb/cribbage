@@ -1,4 +1,3 @@
-{-# LANGUAGE TupleSections #-}
 module Main where
 
 import System.Random
@@ -15,7 +14,8 @@ data Rank = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack 
   deriving (Eq, Ord, Enum, Show, Read)
 
 pickRandomCard :: [a] -> IO a
-pickRandomCard xs = fmap (xs !!) $ randomRIO (0, length xs - 1)
+-- pickRandomCard xs = fmap (xs !!) $ randomRIO (0, length xs - 1)
+pickRandomCard xs = (xs !!) <$> randomRIO (0, length xs - 1)
 
 mkRands :: Int -> IO [Int]
 mkRands = mapM (randomRIO . (,) 0) . enumFromTo 1 . pred
@@ -31,20 +31,20 @@ swapElems (i, j) xs
  | otherwise = replaceAt j (xs !! i) $ replaceAt i (xs !! j) xs
 
 shuffleNew :: [a] -> IO [a]
-shuffleNew xs = liftM (foldr swapElems xs . zip [1 ..]) (mkRands (length xs))
+shuffleNew xs = fmap (foldr swapElems xs . zip [1 ..]) (mkRands (length xs))
 
 newDeck :: Deck
 newDeck = [Card x y | y <- [Clubs .. Spades], x <- [Two .. Ace]]
 
 shuffle :: Deck -> IO Deck
-shuffle deck = do
-    if length deck /= 0
+shuffle deck =
+    if not (null deck)
         then do
-            let deckLen = (length deck) - 1
+            let deckLen = length deck - 1
             n <- randomRIO(0, deckLen) :: IO Int
-            let randomCard = deck !! (fromIntegral n)
+            let randomCard = deck !! fromIntegral n
             tailShuffle <- shuffle (delete randomCard deck)
-            return ([randomCard] ++ tailShuffle)
+            return (randomCard : tailShuffle)
         else return deck
 
 data Card = Card Rank Suit
@@ -89,7 +89,7 @@ dealCards :: Monad m => m Deck -> m Deck
 dealCards d =
     do
     deck <- d
-    return ([deck !! n | n <- [0..51]])
+    return [deck !! n | n <- [0..51]]
 
 main :: IO ()
 main = do
