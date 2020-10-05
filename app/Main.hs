@@ -77,6 +77,18 @@ randomSuit = randomRIO (0,3)
 getCard :: Int -> Int -> Card
 getCard r s = Card ([Two .. Ace] !! r) ([Clubs .. Spades] !! s)
 
+-- createCard :: Rank ->  Suit -> Card
+createCard r s = Card r s
+
+
+get2nd (_,a) = a
+-- isSpade card suit = fst' card == suit
+isSpade card suit = suit == get2nd card
+-- isSpade card suit = print $  get3th (1, 2)
+
+
+nOfNeg l = length(filter (<0) l)
+
 fullDeck :: Deck
 fullDeck = [ Card j i | i <- [Clubs .. Spades], j <- [Two .. Ace] ]
 
@@ -104,6 +116,9 @@ merge (x:xs) ys = x:merge ys xs
 
 countPairs hand cutCard = merge
 
+-- foo p = foldl' (\n x -> if p x then n+1 else n) 0
+
+
 main :: IO ()
 main = do
   putStrLn "--- separated ---"
@@ -125,5 +140,9 @@ main = do
   let myCutCard = flipCutCard shuffledDeck
   print myCutCard
   putStrLn "--- separated ---"
-
+  let x = merge myHand myCutCard
+  let y = createCard King Clubs
+  print x
+  print y
+  -- let y = x !! 0 -- | n <- [0]
 -- getTopCard = 1
