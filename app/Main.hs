@@ -53,6 +53,7 @@ data Card = Card Rank Suit
 --type Card = (Suit, Rank)
 type Deck = [Card]
 type Hand = [Card]
+type CutCard = [Card]
 
 --makeDeck :: [Deck]
 --makeDeck = liftM2 Card(,) [Clubs ..] [Two ..]
@@ -91,6 +92,18 @@ dealCards d =
     deck <- d
     return [deck !! n | n <- [0..51]]
 
+dealFourCards :: Deck -> Hand
+dealFourCards deck = [deck !! n | n <- [0..3]]
+
+flipCutCard :: Deck -> CutCard
+flipCutCard deck = [deck !! n | n <- [51]]
+
+merge :: [a] -> [a] -> [a]
+merge [] ys = ys
+merge (x:xs) ys = x:merge ys xs
+
+countPairs hand cutCard = merge
+
 main :: IO ()
 main = do
   putStrLn "--- separated ---"
@@ -106,6 +119,11 @@ main = do
   putStrLn "--- separated ---"
   let deckLength = length shuffledDeck
   print deckLength
-
+  let myHand = dealFourCards shuffledDeck
+  print myHand
+  putStrLn "--- separated ---"
+  let myCutCard = flipCutCard shuffledDeck
+  print myCutCard
+  putStrLn "--- separated ---"
 
 -- getTopCard = 1
