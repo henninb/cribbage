@@ -21,6 +21,14 @@ type Deck = [Card]
 type Hand = [Card]
 type CutCard = Card
 
+values = [2,3,4,5,6,7,8,9,10,10,10,10,1]
+
+
+-- testMe hand = map extractSuit hand
+
+getCardValue :: [Rank] -> Maybe Int
+getCardValue = elemIndex Three
+
 pickRandomCard :: [a] -> IO a
 -- pickRandomCard xs = fmap (xs !!) $ randomRIO (0, length xs - 1)
 pickRandomCard xs = (xs !!) <$> randomRIO (0, length xs - 1)
@@ -124,6 +132,8 @@ allEqual :: Eq a => [a] -> Bool
 allEqual [] = True
 allEqual (x:xs) = all (== x) xs
 
+--printMaybe = maybe (putStrLn "List was empty!") print
+
 isFlush :: Hand -> CutCard -> Bool -> Bool
 isFlush hand cutCard isCrib = if isCrib then allEqual suitList && cutCardMatches else allEqual suitList
   where
@@ -154,4 +164,9 @@ main = do
   print cutCard
   putStrLn "--- separated ---"
   let x = isFlush myHand cutCard False
+  let y = getCardValue [Three]
+  --printMaybe y
+  --print (y :: Maybe Int)
+  print y
   print x
+
