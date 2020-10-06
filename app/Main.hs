@@ -19,14 +19,14 @@ data Card = Card Rank Suit
 --type Card = (Suit, Rank)
 type Deck = [Card]
 type Hand = [Card]
-type CutCard = [Card]
+type CutCard = Card
 
 pickRandomCard :: [a] -> IO a
 -- pickRandomCard xs = fmap (xs !!) $ randomRIO (0, length xs - 1)
 pickRandomCard xs = (xs !!) <$> randomRIO (0, length xs - 1)
 
-mkRands :: Int -> IO [Int]
-mkRands = mapM (randomRIO . (,) 0) . enumFromTo 1 . pred
+makeRandoms :: Int -> IO [Int]
+makeRandoms = mapM (randomRIO . (,) 0) . enumFromTo 1 . pred
 
 replaceAt :: Int -> a -> [a] -> [a]
 replaceAt i c l =
@@ -39,7 +39,7 @@ swapElems (i, j) xs
  | otherwise = replaceAt j (xs !! i) $ replaceAt i (xs !! j) xs
 
 shuffleNew :: [a] -> IO [a]
-shuffleNew xs = fmap (foldr swapElems xs . zip [1 ..]) (mkRands (length xs))
+shuffleNew xs = fmap (foldr swapElems xs . zip [1 ..]) (makeRandoms (length xs))
 
 newDeck :: Deck
 newDeck = [Card x y | y <- [Clubs .. Spades], x <- [Two .. Ace]]
@@ -103,9 +103,7 @@ dealFourCards :: Deck -> Hand
 dealFourCards deck = [deck !! n | n <- [0..3]]
 
 flipCutCard :: Deck -> CutCard
-flipCutCard deck = [deck !! n | n <- [51]]
-
-cutCard deck = head . deck 51
+flipCutCard = last
 
 -- merge :: [a] -> [a] -> [a]
 -- merge [] ys = ys
@@ -117,9 +115,22 @@ extractSuit (Card a b) = b
 extractRank :: Card -> Rank
 extractRank (Card a b) = a
 
-isFlush :: Hand -> CutCard -> Bool
-isFlush [] a = True
-isFlush (x:xs) a = (Spades == extractSuit x) && isFlush a xs
+listOfSpades = filter isSpade
+
+--myFun2 = foldl' extractSuit
+--checkBoolean = foldMap lift
+
+allEqual :: Eq a => [a] -> Bool
+allEqual [] = True
+allEqual (x:xs) = all (== x) xs
+
+isFlush :: Hand -> CutCard -> Bool -> Bool
+isFlush hand cutCard isCrib = allEqual suitList && not isCrib
+  where
+    suitList = map extractSuit hand
+    suitOfFistCard = head suitList
+    suitOfCutCard = extractSuit cutCard
+    cutCardMatches = suitOfFistCard == suitOfCutCard
 
 main :: IO ()
 main = do
@@ -139,13 +150,8 @@ main = do
   let myHand = dealFourCards shuffledDeck
   print myHand
   putStrLn "--- separated ---"
-  let myCutCard = flipCutCard shuffledDeck
-  print myCutCard
+  let cutCard = flipCutCard shuffledDeck
+  print cutCard
   putStrLn "--- separated ---"
-  -- let x = merge myHand myCutCard
-  let x = isFlush myHand myCutCard
-  let y = createCard King Clubs
+  let x = isFlush myHand cutCard False
   print x
-  print y
-  -- let y = x !! 0 -- | n <- [0]
--- getTopCard = 1
