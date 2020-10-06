@@ -125,7 +125,7 @@ allEqual [] = True
 allEqual (x:xs) = all (== x) xs
 
 isFlush :: Hand -> CutCard -> Bool -> Bool
-isFlush hand cutCard isCrib = allEqual suitList && not isCrib
+isFlush hand cutCard isCrib = if isCrib then allEqual suitList && cutCardMatches else allEqual suitList
   where
     suitList = map extractSuit hand
     suitOfFistCard = head suitList
