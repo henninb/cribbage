@@ -8,18 +8,26 @@ import Control.Monad.Trans.Class
 import Control.Applicative
 
 data Suit = Clubs | Diamonds | Hearts | Spades
-  deriving (Eq, Ord, Enum, Show, Read)
+  deriving (Eq, Ord, Enum, Read)
+instance Show Suit where
+  show Hearts = "H" ; show Diamonds = "D" ; show Clubs  = "C" ; show Spades = "S"
+
 
 data Rank = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King | Ace
-  deriving (Eq, Ord, Enum, Show, Read)
--- instance Show Rank where
---   show Ace   = "A" ; show Two  = "2" ;  show Three  = "3" ; show Four  = "4"
---   show Five  = "5" ; show Six  = "6" ;  show Seven  = "7" ; show Eight  = "8"
---   show Nine  = "9" ; show Ten = "10" ; show Jack   = "J" ; show Queen   = "Q" ; show King   = "K"
+  deriving (Eq, Ord, Enum, Read)
+instance Show Rank where
+   show Ace   = "A" ; show Two  = "2" ;  show Three  = "3" ; show Four  = "4"
+   show Five  = "5" ; show Six  = "6" ;  show Seven  = "7" ; show Eight  = "8"
+   show Nine  = "9" ; show Ten = "T" ; show Jack   = "J" ; show Queen   = "Q" ; show King   = "K"
 
 data Card = Card { rank :: Rank, suit :: Suit }
--- data Card = Card Rank Suit
-  deriving (Eq, Show, Read)
+  deriving (Eq)
+instance Show Card where
+  show (Card r s) = show r ++ show s
+instance Read Card where
+  readsPrec _ cs = [(Card r s, cs'')]
+    where (r, cs') = head . readsPrec 0 $ cs
+          (s, cs'') = head . readsPrec 0 $ cs'
 
 --type Card = (Suit, Rank)
 type Deck = [Card]
@@ -74,6 +82,12 @@ shuffle deck =
             return (randomCard : tailShuffle)
         else return deck
 
+
+makeCard :: String -> Card
+makeCard = read
+
+makeHand :: String -> Hand
+makeHand = map read . words
 
 --makeDeck :: [Deck]
 --makeDeck = liftM2 Card(,) [Clubs ..] [Two ..]
@@ -169,6 +183,12 @@ main = do
   putStrLn "--- separated ---"
   let x = isFlush myHand cutCard False
   let y = getCardValue [Three]
+  let fourClubs = makeCard "Five Clubs"
+  let aceHearts = makeCard "Ace Hearts"
+  let jackDiamonds = makeCard "Jack Diamonds"
+  let cardGroup = [fourClubs, aceHearts, jackDiamonds]
+  let fifteensCount = fifteen cardGroup
   print y
   print x
+  print fifteensCount
 
