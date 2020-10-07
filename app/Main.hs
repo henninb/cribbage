@@ -12,7 +12,6 @@ data Suit = Clubs | Diamonds | Hearts | Spades
 instance Show Suit where
   show Hearts = "H" ; show Diamonds = "D" ; show Clubs  = "C" ; show Spades = "S"
 
-
 data Rank = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King | Ace
   deriving (Eq, Ord, Enum, Read)
 instance Show Rank where
@@ -21,15 +20,14 @@ instance Show Rank where
    show Nine  = "9" ; show Ten = "T" ; show Jack   = "J" ; show Queen   = "Q" ; show King   = "K"
 
 data Card = Card { rank :: Rank, suit :: Suit }
-  deriving (Eq)
+  deriving (Eq, Ord)
 instance Show Card where
   show (Card r s) = show r ++ show s
 instance Read Card where
   readsPrec _ cs = [(Card r s, cs'')]
-    where (r, cs') = head . readsPrec 0 $ cs
-          (s, cs'') = head . readsPrec 0 $ cs'
+    where (r, cs') = head . reads $ cs
+          (s, cs'') = head . reads $ cs'
 
---type Card = (Suit, Rank)
 type Deck = [Card]
 type Hand = [Card]
 type CutCard = Card
@@ -42,8 +40,42 @@ value (Card King _) = 10
 value c = (fromEnum . rank $ c) + 2
 
 fifteen :: [Card] -> Int
-fifteen cs | (sum . map value $ cs) == 15 = 2
+fifteen cards | (sum . map value $ cards) == 15 = 2
 fifteen _ = 0
+
+pair :: [Card] -> Int
+pair [card1, card2] | rank card1 == rank card2 = 2
+pair _ = 0
+
+run :: [Card] -> Int
+run cs | length cs >= 3 && run' cs = length cs
+  where run' (c1:c2:cs) = v c2 == v c1 + 1 && run' (c2:cs)
+        run' _ = True
+        v = fromEnum . rank
+run _ = 0
+
+flush :: Hand -> Int
+flush (c:cs) | all (\x -> suit x == s) cs = length cs + 1
+  where s = suit c
+flush _ = 0
+
+hisNobs :: Card -> Hand -> Int
+hisNobs s = length . filter (\card -> suit card == suit s && rank card == Jack)
+
+hisNibs :: Card -> Int
+hisNibs (Card Jack _) = 2
+hisNibs _ = 0
+
+scoreCards :: Bool -> Card -> Hand -> Int
+scoreCards isCrib theCutCard hand =
+  (sum . map scoreSet . sets $ (theCutCard:hand))
+    + flush (theCutCard:hand)
+    + if isCrib then 0 else flush hand
+    + hisNobs theCutCard hand
+  where scoreSet cs = sum . map (\f -> f cs) $ [fifteen, pair, run]
+        sets = tail . sort . sets'
+        sets' [] = [[]]
+        sets' (x:xs) = sets' xs ++ map (x:) (sets' xs)
 
 getCardValue :: [Rank] -> Maybe Int
 getCardValue = elemIndex Three
@@ -111,11 +143,8 @@ getCard r s = Card ([Two .. Ace] !! r) ([Clubs .. Spades] !! s)
 createCard :: Rank ->  Suit -> Card
 createCard = Card
 
-isSpade :: Card -> Bool
-isSpade card = Spades == extractSuit card
-
-isSuit :: Card -> Suit -> Bool
-isSuit card suit = suit == extractSuit card
+--isSuit :: Card -> Suit -> Bool
+--isSuit card suit = suit == extractSuit card
 
 fullDeck :: Deck
 fullDeck = [ Card j i | i <- [Clubs .. Spades], j <- [Two .. Ace] ]
@@ -155,9 +184,9 @@ allEqual (x:xs) = all (== x) xs
 isFlush :: Hand -> CutCard -> Bool -> Bool
 isFlush hand cutCard isCrib = if isCrib then allEqual suitList && cutCardMatches else allEqual suitList
   where
-    suitList = map extractSuit hand
+    suitList = map suit hand
     suitOfFistCard = head suitList
-    suitOfCutCard = extractSuit cutCard
+    suitOfCutCard = suit cutCard
     cutCardMatches = suitOfFistCard == suitOfCutCard
 
 main :: IO ()
@@ -183,12 +212,17 @@ main = do
   putStrLn "--- separated ---"
   let x = isFlush myHand cutCard False
   let y = getCardValue [Three]
-  let fourClubs = makeCard "Five Clubs"
+  let fourClubs = makeCard "Four Clubs"
+  let fourDiamonds = makeCard "Four Diamonds"
   let aceHearts = makeCard "Ace Hearts"
   let jackDiamonds = makeCard "Jack Diamonds"
-  let cardGroup = [fourClubs, aceHearts, jackDiamonds]
-  let fifteensCount = fifteen cardGroup
+  let aceDiamonds = makeCard "Ace Diamonds"
+  let fifteensCount = fifteen [fourClubs, aceHearts, jackDiamonds]
+  let pairCount = pair [fourClubs, fourDiamonds]
+  let totals = scoreCards True  fourDiamonds [fourClubs, aceHearts, aceDiamonds, jackDiamonds]
   print y
   print x
   print fifteensCount
+  print pairCount
+  print totals
 
