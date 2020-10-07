@@ -1,4 +1,6 @@
 module Main where
+-- module Main (makeCard) where
+-- module Cards (standardDeck, deal, scoreHand, scoreCrib, hisNibs) where
 
 import System.Random
 import Data.List
@@ -12,7 +14,7 @@ data Suit = Clubs | Diamonds | Hearts | Spades
 instance Show Suit where
   show Hearts = "H" ; show Diamonds = "D" ; show Clubs  = "C" ; show Spades = "S"
 
-data Rank = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King | Ace
+data Rank = Ace | Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King
   deriving (Eq, Ord, Enum, Read)
 instance Show Rank where
    show Ace   = "A" ; show Two  = "2" ;  show Three  = "3" ; show Four  = "4"
@@ -70,8 +72,8 @@ scoreTheHand :: Bool -> Card -> Hand -> Int
 scoreTheHand isCrib theCutCard hand =
   (sum . map scoreSet . sets $ (theCutCard:hand))
     + flush (theCutCard:hand)
-    + if isCrib then 0 else flush hand
     + hisNobs theCutCard hand
+    + if isCrib then 0 else flush hand
   where scoreSet cs = sum . map (\f -> f cs) $ [fifteen, pair, run]
         sets = tail . sort . sets'
         sets' [] = [[]]
@@ -97,7 +99,7 @@ shuffleNew :: [a] -> IO [a]
 shuffleNew xs = fmap (foldr swapElems xs . zip [1 ..]) (makeRandoms (length xs))
 
 newDeck :: Deck
-newDeck = [Card x y | y <- [Clubs .. Spades], x <- [Two .. Ace]]
+newDeck = [Card x y | y <- [Clubs .. Spades], x <- [Ace .. King]]
 
 shuffle :: Deck -> IO Deck
 shuffle deck =
@@ -116,10 +118,6 @@ makeCard = read
 makeHand :: String -> Hand
 makeHand = map read . words
 
---makeDeck :: [Deck]
---makeDeck = liftM2 Card(,) [Clubs ..] [Two ..]
---makeDeck = concatMap (\suit -> map (suit,) [Two ..]) [Clubs ..]
-
 showCard :: Card -> String
 showCard (Card n s) = show n ++ " -- " ++ show s
 
@@ -133,13 +131,13 @@ randomSuit :: IO Int
 randomSuit = randomRIO (0,3)
 
 getCard :: Int -> Int -> Card
-getCard rank suit = Card ([Two .. Ace] !! rank) ([Clubs .. Spades] !! suit)
+getCard rank suit = Card ([Ace .. King] !! rank) ([Clubs .. Spades] !! suit)
 
 createCard :: Rank ->  Suit -> Card
 createCard = Card
 
 fullDeck :: Deck
-fullDeck = [ Card j i | i <- [Clubs .. Spades], j <- [Two .. Ace] ]
+fullDeck = [ Card j i | i <- [Clubs .. Spades], j <- [Ace .. King] ]
 
 deleteFromDeck :: Card -> Deck -> Deck
 deleteFromDeck c = filter (== c)
@@ -180,6 +178,9 @@ flipCutCard = last
 --    suitOfFistCard = head suitList
 --    suitOfCutCard = suit cutCard
 --    cutCardMatches = suitOfFistCard == suitOfCutCard
+--
+combination [] = [[]]
+combination (x:xs) = combination xs ++ map (x:) (combination xs)
 
 main :: IO ()
 main = do
@@ -211,7 +212,9 @@ main = do
   let aceDiamonds = makeCard "Ace Diamonds"
   let totals = scoreTheHand False cutCard myHand
   let nobs = hisNobs cutCard myHand
+  let comb = combination myHand
   print myHand
   print cutCard
   print totals
   print nobs
+  print comb
