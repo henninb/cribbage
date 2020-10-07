@@ -66,8 +66,8 @@ hisNibs :: Card -> Int
 hisNibs (Card Jack _) = 2
 hisNibs _ = 0
 
-scoreCards :: Bool -> Card -> Hand -> Int
-scoreCards isCrib theCutCard hand =
+scoreTheHand :: Bool -> Card -> Hand -> Int
+scoreTheHand isCrib theCutCard hand =
   (sum . map scoreSet . sets $ (theCutCard:hand))
     + flush (theCutCard:hand)
     + if isCrib then 0 else flush hand
@@ -77,11 +77,7 @@ scoreCards isCrib theCutCard hand =
         sets' [] = [[]]
         sets' (x:xs) = sets' xs ++ map (x:) (sets' xs)
 
-getCardValue :: [Rank] -> Maybe Int
-getCardValue = elemIndex Three
-
 pickRandomCard :: [a] -> IO a
--- pickRandomCard xs = fmap (xs !!) $ randomRIO (0, length xs - 1)
 pickRandomCard xs = (xs !!) <$> randomRIO (0, length xs - 1)
 
 makeRandoms :: Int -> IO [Int]
@@ -114,7 +110,6 @@ shuffle deck =
             return (randomCard : tailShuffle)
         else return deck
 
-
 makeCard :: String -> Card
 makeCard = read
 
@@ -138,13 +133,10 @@ randomSuit :: IO Int
 randomSuit = randomRIO (0,3)
 
 getCard :: Int -> Int -> Card
-getCard r s = Card ([Two .. Ace] !! r) ([Clubs .. Spades] !! s)
+getCard rank suit = Card ([Two .. Ace] !! rank) ([Clubs .. Spades] !! suit)
 
 createCard :: Rank ->  Suit -> Card
 createCard = Card
-
---isSuit :: Card -> Suit -> Bool
---isSuit card suit = suit == extractSuit card
 
 fullDeck :: Deck
 fullDeck = [ Card j i | i <- [Clubs .. Spades], j <- [Two .. Ace] ]
@@ -171,23 +163,23 @@ flipCutCard = last
 -- merge [] ys = ys
 -- merge (x:xs) ys = x:merge ys xs
 
-extractSuit :: Card -> Suit
-extractSuit (Card a b) = b
---
-extractRank :: Card -> Rank
-extractRank (Card a b) = a
+--extractSuit :: Card -> Suit
+--extractSuit (Card a b) = b
 
-allEqual :: Eq a => [a] -> Bool
-allEqual [] = True
-allEqual (x:xs) = all (== x) xs
+--extractRank :: Card -> Rank
+--extractRank (Card a b) = a
 
-isFlush :: Hand -> CutCard -> Bool -> Bool
-isFlush hand cutCard isCrib = if isCrib then allEqual suitList && cutCardMatches else allEqual suitList
-  where
-    suitList = map suit hand
-    suitOfFistCard = head suitList
-    suitOfCutCard = suit cutCard
-    cutCardMatches = suitOfFistCard == suitOfCutCard
+--allEqual :: Eq a => [a] -> Bool
+--allEqual [] = True
+--allEqual (x:xs) = all (== x) xs
+
+--isFlush :: Hand -> CutCard -> Bool -> Bool
+--isFlush hand cutCard isCrib = if isCrib then allEqual suitList && cutCardMatches else allEqual suitList
+--  where
+--    suitList = map suit hand
+--    suitOfFistCard = head suitList
+--    suitOfCutCard = suit cutCard
+--    cutCardMatches = suitOfFistCard == suitOfCutCard
 
 main :: IO ()
 main = do
@@ -204,25 +196,22 @@ main = do
   putStrLn "--- separated ---"
   let deckLength = length shuffledDeck
   print deckLength
-  let myHand = dealFourCards shuffledDeck
+  let myHand = sort (dealFourCards shuffledDeck)
   print myHand
   putStrLn "--- separated ---"
   let cutCard = flipCutCard shuffledDeck
   print cutCard
   putStrLn "--- separated ---"
-  let x = isFlush myHand cutCard False
-  let y = getCardValue [Three]
   let fourClubs = makeCard "Four Clubs"
   let fourDiamonds = makeCard "Four Diamonds"
+  let fiveDiamonds = makeCard "Five Diamonds"
+  let sixHeats = makeCard "Six Hearts"
   let aceHearts = makeCard "Ace Hearts"
   let jackDiamonds = makeCard "Jack Diamonds"
   let aceDiamonds = makeCard "Ace Diamonds"
-  let fifteensCount = fifteen [fourClubs, aceHearts, jackDiamonds]
-  let pairCount = pair [fourClubs, fourDiamonds]
-  let totals = scoreCards True  fourDiamonds [fourClubs, aceHearts, aceDiamonds, jackDiamonds]
-  print y
-  print x
-  print fifteensCount
-  print pairCount
+  let totals = scoreTheHand False cutCard myHand
+  let nobs = hisNobs cutCard myHand
+  print myHand
+  print cutCard
   print totals
-
+  print nobs
