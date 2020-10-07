@@ -12,8 +12,13 @@ data Suit = Clubs | Diamonds | Hearts | Spades
 
 data Rank = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King | Ace
   deriving (Eq, Ord, Enum, Show, Read)
+-- instance Show Rank where
+--   show Ace   = "A" ; show Two  = "2" ;  show Three  = "3" ; show Four  = "4"
+--   show Five  = "5" ; show Six  = "6" ;  show Seven  = "7" ; show Eight  = "8"
+--   show Nine  = "9" ; show Ten = "10" ; show Jack   = "J" ; show Queen   = "Q" ; show King   = "K"
 
-data Card = Card Rank Suit
+data Card = Card { rank :: Rank, suit :: Suit }
+-- data Card = Card Rank Suit
   deriving (Eq, Show, Read)
 
 --type Card = (Suit, Rank)
@@ -21,10 +26,16 @@ type Deck = [Card]
 type Hand = [Card]
 type CutCard = Card
 
-values = [2,3,4,5,6,7,8,9,10,10,10,10,1]
+value :: Card -> Int
+value (Card Ace _) = 1
+value (Card Jack _) = 10
+value (Card Queen _) = 10
+value (Card King _) = 10
+value c = (fromEnum . rank $ c) + 2
 
-
--- testMe hand = map extractSuit hand
+fifteen :: [Card] -> Int
+fifteen cs | (sum . map value $ cs) == 15 = 2
+fifteen _ = 0
 
 getCardValue :: [Rank] -> Maybe Int
 getCardValue = elemIndex Three
@@ -165,8 +176,6 @@ main = do
   putStrLn "--- separated ---"
   let x = isFlush myHand cutCard False
   let y = getCardValue [Three]
-  --printMaybe y
-  --print (y :: Maybe Int)
   print y
   print x
 
