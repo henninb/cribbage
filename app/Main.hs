@@ -67,8 +67,8 @@ shuffle :: Deck -> IO Deck
 shuffle deck =
     if not (null deck)
         then do
-            let deckLen = length deck - 1
-            n <- randomRIO(0, deckLen) :: IO Int
+            let deckLength = length deck - 1
+            n <- randomRIO(0, deckLength) :: IO Int
             let randomCard = deck !! fromIntegral n
             tailShuffle <- shuffle (delete randomCard deck)
             return (randomCard : tailShuffle)
@@ -134,16 +134,9 @@ extractSuit (Card a b) = b
 extractRank :: Card -> Rank
 extractRank (Card a b) = a
 
-listOfSpades = filter isSpade
-
---myFun2 = foldl' extractSuit
---checkBoolean = foldMap lift
-
 allEqual :: Eq a => [a] -> Bool
 allEqual [] = True
 allEqual (x:xs) = all (== x) xs
-
---printMaybe = maybe (putStrLn "List was empty!") print
 
 isFlush :: Hand -> CutCard -> Bool -> Bool
 isFlush hand cutCard isCrib = if isCrib then allEqual suitList && cutCardMatches else allEqual suitList
