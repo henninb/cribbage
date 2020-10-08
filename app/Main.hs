@@ -48,7 +48,6 @@ pair :: [Card] -> Int
 pair [card1, card2] | rank card1 == rank card2 = 2
 pair _ = 0
 
--- bug found in runs greater than 3
 run :: [Card] -> Int
 run cards | length cards >= 3 && run' (sort cards) = length cards
   where run' (c1:c2:cs) = rankValue c2 == rankValue c1 + 1 && run' (c2:cs)
@@ -56,9 +55,10 @@ run cards | length cards >= 3 && run' (sort cards) = length cards
         rankValue = fromEnum . rank
 run _ = 0
 
+-- need to fix the flush
 flush :: [Card] -> Int
-flush (topCard:remainingCards) | all (\x -> suit x == s) remainingCards = length remainingCards + 1
-  where s = suit topCard
+flush (topCard:remainingCards) | all (\x -> suit x == suitOfTopCard) remainingCards = length remainingCards + 1
+  where suitOfTopCard = suit topCard
 flush _ = 0
 
 hisNobs :: Card -> Hand -> Int
@@ -70,10 +70,24 @@ hisNibs _ = 0
 
 scoreTheHand :: Bool -> Card -> Hand -> Int
 scoreTheHand isCrib theCutCard hand =
-  (sum . map scoreSet . sets $ (theCutCard:hand))
+  (sum . map scoreSet . sets $ (theCutCard : hand))
+    + runWrapper (theCutCard : hand)
     + flush (theCutCard:hand)
     + hisNobs theCutCard hand
-    + if isCrib then 0 else flush hand
+    + if isCrib then 0 else flush hand + 0
+
+runWrapper :: [Card] -> Int
+runWrapper cards
+  | five > 0 = five
+  | four > 0 = four
+  | otherwise = three
+  where
+      five = sum . map run . (filter (\ n -> length n == 5) . sets) $ cards
+      four = sum . map run . (filter (\ n -> length n == 4) . sets) $ cards
+      three = sum . map run . (filter (\ n -> length n == 3) . sets) $ cards
+
+listOfSize :: Int -> [[Card]] -> [[Card]]
+listOfSize size = filter (\n -> length n == size)
 
 pickRandomCard :: [a] -> IO a
 pickRandomCard xs = (xs !!) <$> randomRIO (0, length xs - 1)
@@ -161,8 +175,7 @@ sets :: [Card] -> [[Card]]
 sets = tail . sort . combination
 
 scoreSet :: [Card] -> Int
-scoreSet cards = sum . map (\f -> f cards) $ [fifteen, pair, run]
---scoreSet cards = sum . map (\f -> f cards) $ [run]
+scoreSet cards = sum . map (\f -> f cards) $ [fifteen, pair]
 
 main :: IO ()
 main = do
@@ -190,12 +203,16 @@ main = do
   let aceDiamonds = makeCard "Ace Diamonds"
   let fourDiamonds = makeCard "Four Diamonds"
   let fiveDiamonds = makeCard "Five Diamonds"
+  let fiveHearts = makeCard "Five Hearts"
+  let fiveSpades = makeCard "Five Spades"
+  let fiveClubs = makeCard "Five Clubs"
   let sixHearts = makeCard "Six Hearts"
   let sevenHearts = makeCard "Seven Hearts"
   let jackDiamonds = makeCard "Jack Diamonds"
 
-  --let totals = scoreTheHand False cutCard myHand
-  let totals = scoreTheHand False jackDiamonds [ fourDiamonds, fiveDiamonds,  sixHearts, sevenHearts]
+  let totals = scoreTheHand False cutCard myHand
+  --let totals = scoreTheHand False fourClubs [ fourDiamonds, fiveDiamonds,  sixHearts, sevenHearts]
+  --let totals = scoreTheHand False  sevenHearts [fiveDiamonds, fiveClubs,  fiveHearts, fiveSpades]
   let nobs = hisNobs cutCard myHand
   let comb = combination myHand
   let s = sets (cutCard:myHand)
@@ -203,4 +220,3 @@ main = do
   print cutCard
   print totals
   print nobs
-  print s
