@@ -56,14 +56,6 @@ run cards | length cards >= 3 && run' (sort cards) = length cards
         rankValue = fromEnum . rank
 run _ = 0
 
---myRun (c1:c2:c3:c4:cs) = rankValue c2 == rankValue c1 + 3
---myRun (c1:c2:c3:cs) = True
---myRun (c1:c2:cs) = True
---  where
---    rankValue = fromEnum . rank
-
-
-
 flush :: [Card] -> Int
 flush (topCard:remainingCards) | all (\x -> suit x == s) remainingCards = length remainingCards + 1
   where s = suit topCard
