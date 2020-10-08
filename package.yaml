@@ -38,6 +38,10 @@ executables:
     - pretty-simple
     - random
     - transformers
+    - aeson
+    - aeson-casing
+    - aeson-pretty
+    - lens
 
 tests:
   cribbage-test:

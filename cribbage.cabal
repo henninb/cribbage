@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 914dbe97f34e35deb96abc5064ff706fe325a9fd381bd91483913a6bb2f140f0
+-- hash: 3976e18c87c00ac4788bb6a129177b1a2a2f99ce0cb805ac063907c11df472c2
 
 name:           cribbage
 version:        0.1.0.0
@@ -44,8 +44,12 @@ executable cribbage-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , aeson-casing
+    , aeson-pretty
+    , base >=4.7 && <5
     , cribbage
+    , lens
     , pretty-simple
     , random
     , transformers

@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE DeriveAnyClass    #-}
+
 module Main where
 -- module Main (makeCard) where
 -- module Cards (standardDeck, deal, scoreHand, scoreCrib, hisNibs) where
@@ -8,40 +11,56 @@ import Control.Monad
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Class
 import Control.Applicative
+--import Text.JSON.Generic
+import GHC.Generics
+
+import Data.Aeson
+import Data.Aeson.Casing
+import Data.Aeson.Parser
+import Data.Aeson.Encode.Pretty
 
 data Suit = Clubs | Diamonds | Hearts | Spades
-  deriving (Eq, Ord, Enum, Read)
+  deriving (Eq, Ord, Enum, Read, Generic, ToJSON, FromJSON)
 instance Show Suit where
   show Hearts = "H" ; show Diamonds = "D" ; show Clubs  = "C" ; show Spades = "S"
+--instance ToJSON Suit where
+--  toJSON suit = object [ "Hearts" .= suit, "Diamonds" .= suit, "Clubs" .= suit, "Spades" .= suit]
 
 data Rank = Ace | Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King
-  deriving (Eq, Ord, Enum, Read)
+  deriving (Eq, Ord, Enum, Read, Generic, ToJSON, FromJSON)
 instance Show Rank where
    show Ace   = "A" ; show Two  = "2" ;  show Three  = "3" ; show Four  = "4"
    show Five  = "5" ; show Six  = "6" ;  show Seven  = "7" ; show Eight  = "8"
    show Nine  = "9" ; show Ten = "T" ; show Jack   = "J" ; show Queen   = "Q" ; show King   = "K"
+--instance ToJSON Rank where
+--  toJSON rank = object [ "A" .= rank, "2" .= rank, "3" .= rank, "4" .= rank, "5" .= rank, "6" .= rank,
+--   "7" .= rank, "8" .= rank, "9" .= rank, "T" .= rank, "J" .= rank, "Q" .= rank, "K" .= rank]
 
 data Card = Card { rank :: Rank, suit :: Suit }
-  deriving (Eq, Ord)
+  deriving (Eq, Ord, Generic, ToJSON, FromJSON)
 instance Show Card where
   show (Card r s) = show r ++ show s
 instance Read Card where
   readsPrec _ cs = [(Card r s, cs'')]
     where (r, cs') = head . reads $ cs
           (s, cs'') = head . reads $ cs'
+--instance ToJSON Card where
+--  toJSON card = object [
+--    "rank" .= rank card,
+--    "suit" .= suit card ]
 
 type Deck = [Card]
 type Hand = [Card]
 type CutCard = Card
 
-value :: Card -> Int
-value (Card Jack _) = 10
-value (Card Queen _) = 10
-value (Card King _) = 10
-value card = (fromEnum . rank $ card) + 1
+cardValue :: Card -> Int
+cardValue (Card Jack _) = 10
+cardValue (Card Queen _) = 10
+cardValue (Card King _) = 10
+cardValue card = (fromEnum . rank $ card) + 1
 
 fifteen :: [Card] -> Int
-fifteen cards | (sum . map value $ cards) == 15 = 2
+fifteen cards | (sum . map cardValue $ cards) == 15 = 2
 fifteen _ = 0
 
 pair :: [Card] -> Int
@@ -216,7 +235,10 @@ main = do
   let nobs = hisNobs cutCard myHand
   let comb = combination myHand
   let s = sets (cutCard:myHand)
+  let jc = encode jackDiamonds
+  let p = encode myHand
   print myHand
   print cutCard
   print totals
   print nobs
+  print p
