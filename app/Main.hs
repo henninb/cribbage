@@ -35,11 +35,10 @@ type Hand = [Card]
 type CutCard = Card
 
 value :: Card -> Int
-value (Card Ace _) = 1
 value (Card Jack _) = 10
 value (Card Queen _) = 10
 value (Card King _) = 10
-value c = (fromEnum . rank $ c) + 2
+value card = (fromEnum . rank $ card) + 1
 
 fifteen :: [Card] -> Int
 fifteen cards | (sum . map value $ cards) == 15 = 2
@@ -49,16 +48,25 @@ pair :: [Card] -> Int
 pair [card1, card2] | rank card1 == rank card2 = 2
 pair _ = 0
 
+-- bug found in runs greater than 3
 run :: [Card] -> Int
-run cs | length cs >= 3 && run' cs = length cs
-  where run' (c1:c2:cs) = v c2 == v c1 + 1 && run' (c2:cs)
+run cards | length cards >= 3 && run' (sort cards) = length cards
+  where run' (c1:c2:cs) = rankValue c2 == rankValue c1 + 1 && run' (c2:cs)
         run' _ = True
-        v = fromEnum . rank
+        rankValue = fromEnum . rank
 run _ = 0
 
-flush :: Hand -> Int
-flush (c:cs) | all (\x -> suit x == s) cs = length cs + 1
-  where s = suit c
+--myRun (c1:c2:c3:c4:cs) = rankValue c2 == rankValue c1 + 3
+--myRun (c1:c2:c3:cs) = True
+--myRun (c1:c2:cs) = True
+--  where
+--    rankValue = fromEnum . rank
+
+
+
+flush :: [Card] -> Int
+flush (topCard:remainingCards) | all (\x -> suit x == s) remainingCards = length remainingCards + 1
+  where s = suit topCard
 flush _ = 0
 
 hisNobs :: Card -> Hand -> Int
@@ -74,10 +82,6 @@ scoreTheHand isCrib theCutCard hand =
     + flush (theCutCard:hand)
     + hisNobs theCutCard hand
     + if isCrib then 0 else flush hand
-  where scoreSet cs = sum . map (\f -> f cs) $ [fifteen, pair, run]
-        sets = tail . sort . sets'
-        sets' [] = [[]]
-        sets' (x:xs) = sets' xs ++ map (x:) (sets' xs)
 
 pickRandomCard :: [a] -> IO a
 pickRandomCard xs = (xs !!) <$> randomRIO (0, length xs - 1)
@@ -157,30 +161,16 @@ dealFourCards deck = [deck !! n | n <- [0..3]]
 flipCutCard :: Deck -> CutCard
 flipCutCard = last
 
--- merge :: [a] -> [a] -> [a]
--- merge [] ys = ys
--- merge (x:xs) ys = x:merge ys xs
-
---extractSuit :: Card -> Suit
---extractSuit (Card a b) = b
-
---extractRank :: Card -> Rank
---extractRank (Card a b) = a
-
---allEqual :: Eq a => [a] -> Bool
---allEqual [] = True
---allEqual (x:xs) = all (== x) xs
-
---isFlush :: Hand -> CutCard -> Bool -> Bool
---isFlush hand cutCard isCrib = if isCrib then allEqual suitList && cutCardMatches else allEqual suitList
---  where
---    suitList = map suit hand
---    suitOfFistCard = head suitList
---    suitOfCutCard = suit cutCard
---    cutCardMatches = suitOfFistCard == suitOfCutCard
---
+combination :: [Card] -> [[Card]]
 combination [] = [[]]
 combination (x:xs) = combination xs ++ map (x:) (combination xs)
+
+sets :: [Card] -> [[Card]]
+sets = tail . sort . combination
+
+scoreSet :: [Card] -> Int
+scoreSet cards = sum . map (\f -> f cards) $ [fifteen, pair, run]
+--scoreSet cards = sum . map (\f -> f cards) $ [run]
 
 main :: IO ()
 main = do
@@ -204,17 +194,21 @@ main = do
   print cutCard
   putStrLn "--- separated ---"
   let fourClubs = makeCard "Four Clubs"
+  let aceHearts = makeCard "Ace Hearts"
+  let aceDiamonds = makeCard "Ace Diamonds"
   let fourDiamonds = makeCard "Four Diamonds"
   let fiveDiamonds = makeCard "Five Diamonds"
-  let sixHeats = makeCard "Six Hearts"
-  let aceHearts = makeCard "Ace Hearts"
+  let sixHearts = makeCard "Six Hearts"
+  let sevenHearts = makeCard "Seven Hearts"
   let jackDiamonds = makeCard "Jack Diamonds"
-  let aceDiamonds = makeCard "Ace Diamonds"
-  let totals = scoreTheHand False cutCard myHand
+
+  --let totals = scoreTheHand False cutCard myHand
+  let totals = scoreTheHand False jackDiamonds [ fourDiamonds, fiveDiamonds,  sixHearts, sevenHearts]
   let nobs = hisNobs cutCard myHand
   let comb = combination myHand
+  let s = sets (cutCard:myHand)
   print myHand
   print cutCard
   print totals
   print nobs
-  print comb
+  print s
