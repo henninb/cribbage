@@ -70,7 +70,6 @@ run cards | length cards >= 3 && run' (sort cards) = length cards
         rankValue = fromEnum . rank
 run _ = 0
 
--- need to fix the flush
 flush :: [Card] -> Int
 flush (topCard:remainingCards) | all (\x -> suit x == suitOfTopCard) remainingCards = length remainingCards + 1
   where suitOfTopCard = suit topCard
@@ -87,9 +86,11 @@ scoreTheHand :: Bool -> Card -> Hand -> Int
 scoreTheHand isCrib theCutCard hand =
   (sum . map scoreSet . sets $ (theCutCard : hand))
     + runWrapper (theCutCard : hand)
-    + flush (theCutCard:hand)
     + hisNobs theCutCard hand
-    + if isCrib then 0 else flush hand + 0
+    + if fiveCardFlush then 5 else (if fourCardFlush && not isCrib then 4 else 0)
+    where 
+      fiveCardFlush = flush (theCutCard:hand) == 5
+      fourCardFlush = flush hand == 4
 
 runWrapper :: [Card] -> Int
 runWrapper cards
