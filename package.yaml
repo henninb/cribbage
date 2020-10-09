@@ -24,24 +24,24 @@ dependencies:
 
 library:
   source-dirs: src
-
-executables:
-  cribbage-exe:
-    main:                Main.hs
-    source-dirs:         app
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - cribbage
+  dependencies:
     - pretty-simple
     - random
     - transformers
     - aeson
     - aeson-casing
     - aeson-pretty
-    - lens
+
+executables:
+  cribbage-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+     -threaded
+     -rtsopts
+     -with-rtsopts=-N
+    dependencies:
+    - cribbage
 
 tests:
   cribbage-test:
@@ -53,3 +53,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - cribbage
+    - hspec

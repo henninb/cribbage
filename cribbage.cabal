@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3976e18c87c00ac4788bb6a129177b1a2a2f99ce0cb805ac063907c11df472c2
+-- hash: ec3bc6fbbb19ce99add5112cee1a2eb69da34db3170cc35ece5fac386e009d74
 
 name:           cribbage
 version:        0.1.0.0
@@ -27,13 +27,19 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Cribbage
   other-modules:
       Paths_cribbage
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , aeson-casing
+    , aeson-pretty
+    , base >=4.7 && <5
+    , pretty-simple
+    , random
+    , transformers
   default-language: Haskell2010
 
 executable cribbage-exe
@@ -44,15 +50,8 @@ executable cribbage-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
-    , aeson-casing
-    , aeson-pretty
-    , base >=4.7 && <5
+      base >=4.7 && <5
     , cribbage
-    , lens
-    , pretty-simple
-    , random
-    , transformers
   default-language: Haskell2010
 
 test-suite cribbage-test
@@ -66,4 +65,5 @@ test-suite cribbage-test
   build-depends:
       base >=4.7 && <5
     , cribbage
+    , hspec
   default-language: Haskell2010
