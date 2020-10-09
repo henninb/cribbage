@@ -1,5 +1,5 @@
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
 
 module Cribbage (scoreSet, makeCard, scoreTheHand, shuffleNew, flipCutCard, newDeck, dealCards, dealFourCards) where
 
