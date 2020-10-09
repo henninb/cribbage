@@ -46,5 +46,7 @@ spec =
          scoreTheHand False tenDiamonds [twoDiamonds, fourDiamonds, eightDiamonds, sixDiamonds] `shouldBe` 5
       it "Shows a four card crib flush hand count is valid" $ do
          scoreTheHand True tenClubs [jackDiamonds, fourDiamonds, eightDiamonds, sixDiamonds] `shouldBe` 0
+      it "Shows a five card crib flush hand count is valid" $ do
+         scoreTheHand True tenDiamonds [twoDiamonds, fourDiamonds, eightDiamonds, sixDiamonds] `shouldBe` 5
 main :: IO ()
 main = hspec spec
