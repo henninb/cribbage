@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
 
-module Cribbage (scoreSet, makeCard, scoreTheHand, shuffleNew, flipCutCard, newDeck, dealCards, dealFourCards) where
+module Cribbage (scoreSet, makeCard, scoreTheHand, shuffleNew, flipCutCard, newDeck, dealCards, dealFourCards, deal, dealTwoPlayers) where
 
 import System.Random
 import Data.List
@@ -45,15 +45,25 @@ instance Read Card where
 --    "rank" .= rank card,
 --    "suit" .= suit card ]
 
+data Player = Player { name :: String, score :: Int }
+  deriving (Eq, Ord, Generic, ToJSON, FromJSON)
+
 type Deck = [Card]
 type Hand = [Card]
 type CutCard = Card
+-- pegging
+type Pile = [Card]
 
 cardValue :: Card -> Int
 cardValue (Card Jack _) = 10
 cardValue (Card Queen _) = 10
 cardValue (Card King _) = 10
 cardValue card = (fromEnum . rank $ card) + 1
+
+-- pegging
+countOfPile :: Pile -> Card -> Int
+countOfPile cards card | (sum . map cardValue $ cards) + cardValue card <= 31 = (sum . map cardValue $ cards) + cardValue card
+countOfPile cards _ = sum . map cardValue $ cards
 
 fifteen :: [Card] -> Int
 fifteen cards | (sum . map cardValue $ cards) == 15 = 2
@@ -180,6 +190,9 @@ dealCards d =
 dealFourCards :: Deck -> Hand
 dealFourCards deck = sort([deck !! n | n <- [0..3]])
 
+dealTwoPlayers :: Deck -> Int -> (Hand, Hand)
+dealTwoPlayers deck x = ([deck !! n | n <- [0, 2..(2 * x-2)]], [deck !! n | n <- [1, 3..(2 * x-1)]])
+
 flipCutCard :: Deck -> CutCard
 flipCutCard = last
 
@@ -192,3 +205,19 @@ sets = tail . sort . combination
 
 scoreSet :: [Card] -> Int
 scoreSet cards = sum . map (\f -> f cards) $ [fifteen, pair]
+
+
+-- Source: http://en.literateprograms.org/Fisher-Yates_shuffle_%28Haskell%29
+shuffleDeck :: [a] -> IO [a]
+shuffleDeck l = shuffleDeck' l []
+
+shuffleDeck' [] acc = return acc
+shuffleDeck' l acc =
+  do k <- randomRIO (0, length l - 1)
+     let (lead, x:xs) = splitAt k l
+     shuffleDeck' (lead ++ xs) (x:acc)
+
+-- Deal cards into piles of a specified size
+deal :: [Card] -> [Int] -> [[Card]]
+deal deck [] = [deck]
+deal deck (pile:piles) = take pile deck:deal (drop pile deck) piles

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ec3bc6fbbb19ce99add5112cee1a2eb69da34db3170cc35ece5fac386e009d74
+-- hash: ab835f6131a6499ce24a3852a7bb98d85f7f0066b306229703ab59f3d24af83c
 
 name:           cribbage
 version:        0.1.0.0
@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Cribbage
+      PlayGame
   other-modules:
       Paths_cribbage
   hs-source-dirs:

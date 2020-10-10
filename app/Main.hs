@@ -8,17 +8,15 @@ main :: IO ()
 main = do
   putStrLn "--- separated ---"
   shuffledDeck <- dealCards (shuffleNew newDeck)
-  --shuffledDeck <- dealCards (shuffle makeDeck)
   print shuffledDeck
-  putStrLn "--- separated ---"
-  let deckLength = length shuffledDeck
-  print deckLength
-  let myHand = (dealFourCards shuffledDeck)
-  print myHand
   putStrLn "--- separated ---"
   let cutCard = flipCutCard shuffledDeck
   print cutCard
   putStrLn "--- separated ---"
-  let totals = scoreTheHand False cutCard myHand
-  print totals
-
+  let twoPlayers = dealTwoPlayers shuffledDeck 4
+  let handOfPlayer1 = fst twoPlayers
+  let handOfPlayer2 = snd twoPlayers
+  mapM_ print [handOfPlayer1, handOfPlayer2]
+  print (scoreTheHand False cutCard handOfPlayer1)
+  print (scoreTheHand False cutCard handOfPlayer2)
+  putStr ""

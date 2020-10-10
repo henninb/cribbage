@@ -6,3 +6,15 @@ https://github.com/haihoang20/OverUnder/blob/7cec473c76c017a1e39f38dadb6ad1efb18
 
 https://github.com/patrickleboutillier/cribbage/blob/master/Cards.hs
 
+
+checkGameStatus
+determineWinner
+checkPlayerScore
+dropPlayer
+getPlayerScore
+showPlayerScore
+showPlayerCards
+setupGame
+scoreAllPlayers
+scorePlayer
+createPlayers
