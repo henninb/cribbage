@@ -65,6 +65,9 @@ countOfPile :: Pile -> Card -> Int
 countOfPile cards card | (sum . map cardValue $ cards) + cardValue card <= 31 = (sum . map cardValue $ cards) + cardValue card
 countOfPile cards _ = sum . map cardValue $ cards
 
+scorePegging :: Int
+scorePegging = 0
+
 fifteen :: [Card] -> Int
 fifteen cards | (sum . map cardValue $ cards) == 15 = 2
 fifteen _ = 0

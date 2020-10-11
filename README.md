@@ -6,6 +6,7 @@ https://github.com/haihoang20/OverUnder/blob/7cec473c76c017a1e39f38dadb6ad1efb18
 
 https://github.com/patrickleboutillier/cribbage/blob/master/Cards.hs
 
+https://github.com/aornota/cribbage/blob/94dd31bac23f62dddbc825c0784731371195ade0/src/domain/scoring.fs
 
 checkGameStatus
 determineWinner
@@ -18,3 +19,12 @@ setupGame
 scoreAllPlayers
 scorePlayer
 createPlayers
+
+type PeggingScoreEvent =
+    | PeggingPair of Rank
+    | ThreeOfAKind of Rank
+    | FourOfAKind of Rank
+    | PeggingRun of high:Rank * low:Rank
+    | PeggingFifteen
+    | ThirtyOne
+    | Go
