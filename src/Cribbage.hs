@@ -209,7 +209,6 @@ sets = tail . sort . combination
 scoreSet :: [Card] -> Int
 scoreSet cards = sum . map (\f -> f cards) $ [fifteen, pair]
 
-
 -- Source: http://en.literateprograms.org/Fisher-Yates_shuffle_%28Haskell%29
 shuffleDeck :: [a] -> IO [a]
 shuffleDeck l = shuffleDeck' l []

@@ -4,26 +4,25 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ab835f6131a6499ce24a3852a7bb98d85f7f0066b306229703ab59f3d24af83c
+-- hash: a9ea80e1ce597e924241d26f1b4570e7615b9c68913a5a9ab1a7c7f7c7844cfe
 
 name:           cribbage
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/cribbage#readme>
-homepage:       https://github.com/githubuser/cribbage#readme
-bug-reports:    https://github.com/githubuser/cribbage/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2020 Author name here
+description:    Please see the README on GitHub at <https://github.com/bitexplorer/cribbage#readme>
+homepage:       https://github.com/bitexplorer/cribbage#readme
+bug-reports:    https://github.com/bitexplorer/cribbage/issues
+author:         Brian Henning
+maintainer:     henninb@msn.com
+copyright:      2020 Brian Henning
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
-    ChangeLog.md
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/cribbage
+  location: https://github.com/bitexplorer/cribbage
 
 library
   exposed-modules:
