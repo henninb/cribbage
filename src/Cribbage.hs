@@ -1,19 +1,20 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
 
-module Cribbage (scoreSet, makeCard, scoreTheHand, shuffleNew, flipCutCard, newDeck, dealCards, dealFourCards, deal, dealTwoPlayers) where
+module Cribbage (scoreSet, makeCard, scoreTheHand, shuffleNew, flipCutCard, newDeck, dealCards, dealFourCards, deal, dealTwoPlayers,
+                Card(..)) where
 
 import System.Random
 import Data.List
-import Control.Monad
-import Control.Monad.Trans.Maybe
-import Control.Monad.Trans.Class
-import Control.Applicative
+--import Control.Monad
+--import Control.Monad.Trans.Maybe
+--import Control.Monad.Trans.Class
+--import Control.Applicative
 import GHC.Generics
 import Data.Aeson
-import Data.Aeson.Casing
-import Data.Aeson.Parser
-import Data.Aeson.Encode.Pretty
+--import Data.Aeson.Casing
+--import Data.Aeson.Parser
+--import Data.Aeson.Encode.Pretty
 
 data Suit = Clubs | Diamonds | Hearts | Spades
   deriving (Eq, Ord, Enum, Read, Generic, ToJSON, FromJSON)
@@ -213,6 +214,7 @@ scoreSet cards = sum . map (\f -> f cards) $ [fifteen, pair]
 shuffleDeck :: [a] -> IO [a]
 shuffleDeck l = shuffleDeck' l []
 
+shuffleDeck' :: [a] -> [a] -> IO [a]
 shuffleDeck' [] acc = return acc
 shuffleDeck' l acc =
   do k <- randomRIO (0, length l - 1)

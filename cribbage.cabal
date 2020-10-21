@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a9ea80e1ce597e924241d26f1b4570e7615b9c68913a5a9ab1a7c7f7c7844cfe
+-- hash: 47815e5c991c45a27b7453bae2204d683e08be32048938a73a50865c514d6693
 
 name:           cribbage
 version:        0.1.0.0
@@ -26,6 +26,7 @@ source-repository head
 
 library
   exposed-modules:
+      Controller
       Cribbage
       PlayGame
   other-modules:
@@ -39,7 +40,11 @@ library
     , base >=4.7 && <5
     , pretty-simple
     , random
+    , servant
+    , servant-server
     , transformers
+    , wai
+    , warp
   default-language: Haskell2010
 
 executable cribbage-exe

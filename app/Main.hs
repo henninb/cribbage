@@ -3,6 +3,7 @@
 module Main where
 
 import Cribbage
+import Controller
 
 main :: IO ()
 main = do
@@ -19,4 +20,4 @@ main = do
   mapM_ print [handOfPlayer1, handOfPlayer2]
   print (scoreTheHand False cutCard handOfPlayer1)
   print (scoreTheHand False cutCard handOfPlayer2)
-  putStr ""
+  apiService

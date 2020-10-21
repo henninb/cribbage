@@ -23,7 +23,10 @@ library:
     - aeson
     - aeson-casing
     - aeson-pretty
-
+    - servant
+    - servant-server
+    - wai
+    - warp
 executables:
   cribbage-exe:
     main:                Main.hs
