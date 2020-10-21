@@ -4,9 +4,20 @@ module Main where
 
 import Cribbage
 import Controller
+import System.Exit
+import System.Environment
 
 main :: IO ()
 main = do
+  putStrLn "--- separated ---"
+  programName <- getProgName
+  args <- getArgs
+  if "-h" `elem` args || "--help" `elem` args then
+    print (programName ++ " help") >> exitSuccess
+  else if "-v" `elem` args || "--version" `elem` args then
+    print (programName ++ "version") >> exitSuccess
+  else
+    print "running main program..."
   putStrLn "--- separated ---"
   shuffledDeck <- dealCards (shuffleNew newDeck)
   print shuffledDeck
