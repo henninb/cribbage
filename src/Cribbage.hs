@@ -102,7 +102,7 @@ scoreTheHand isCrib theCutCard hand =
     + runWrapper (theCutCard : hand)
     + hisNobs theCutCard hand
     + if fiveCardFlush then 5 else (if fourCardFlush && not isCrib then 4 else 0)
-    where 
+    where
       fiveCardFlush = flush (theCutCard:hand) == 5
       fourCardFlush = flush hand == 4
 
